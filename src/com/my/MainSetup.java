@@ -1,4 +1,4 @@
-package com.jsptpd;
+package com.my;
 
 import org.nutz.integration.quartz.NutQuartzCronJobFactory;
 import org.nutz.ioc.impl.NutIoc;
