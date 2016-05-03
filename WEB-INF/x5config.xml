@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<x5-config> 
+  <business-server>http://127.0.0.1:8080/BusinessServer</business-server>  
+  <login-name>system</login-name>
+  <password>jsptpd01!</password>
+  <ExecuteContext>configKey=wxb6800808b1dfdceb11</ExecuteContext>
+</x5-config>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<service>
+	<![CDATA[
+%__packageName__%	
+import java.sql.SQLException;
+import com.alibaba.fastjson.JSONObject;
+import com.justep.baas.action.ActionContext;
+
+public class %__className__% {
+	private static byte[] DBConfigBytes = %__DBConfig__%;
+	private static JSONObject DBConfig;
+	
+	private static JSONObject getDBConfig() throws Exception{
+		if(null==DBConfig)
+			DBConfig = JSONObject.parseObject(new String(DBConfigBytes,"UTF-8"));
+		return DBConfig;
+	}
+	private static void initActionParams(JSONObject privateParams,JSONObject publicParams,JSONObject params){
+		for(String key : privateParams.keySet()){
+			params.put(key, privateParams.get(key));
+		}
+		for(String key : publicParams.keySet()){
+			if(!params.containsKey(key))
+				params.put(key, publicParams.get(key));
+		}
+	}
+	%__actions__%
+}
+	]]>
+	</service>
+	<action>
+	<![CDATA[
+	public static JSONObject %__actionName__%(JSONObject params, ActionContext context) throws Exception{
+		boolean selfContext = null==context;
+		if(selfContext) context = new ActionContext(getDBConfig());
+		if(params.containsKey(ActionContext.REQUEST)) context.put(ActionContext.REQUEST, params.get(ActionContext.REQUEST));
+		if(params.containsKey(ActionContext.RESPONSE)) context.put(ActionContext.RESPONSE, params.get(ActionContext.RESPONSE));
+		byte[] privateParamBytes = %__privateParams__%;
+		JSONObject privateParams = JSONObject.parseObject(new String(privateParamBytes,"UTF-8"));
+		byte[] publicParamBytes = %__publicParams__%;
+		JSONObject publicParams = JSONObject.parseObject(new String(publicParamBytes,"UTF-8"));
+		
+		//进行参数处理
+		initActionParams(privateParams,publicParams,params);
+		
+		try{
+			try {
+				JSONObject ret = %__implActionName__%(params, context);
+				if(selfContext) context.commit();
+				return ret;
+			}catch (Exception e){
+				try {
+					if(selfContext) context.rollback();
+				} catch (SQLException e1) {
+				}
+				throw e;
+			}
+		} finally {
+			if(selfContext) context.closeConnection();
+		}
+	}
+	]]>
+	</action>
+</template>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<service>
+	<![CDATA[
+<?php
+// namespace %__packageName__%;	
+
+%__reference__%
+	
+class %__className__% {
+    public static $ActionUtil;
+
+    private static $DbConfigBytes = array%__DBConfig__%;
+    
+    private static function InitActionParams($privateParams, $publicParams, &$params)
+    {
+        $privateArray = $privateParams;
+        foreach($privateArray as $k=>$v)
+        {
+            if (!array_key_exists($k, $params))
+            {
+                $params[$k] = $v;
+            }
+        }
+        
+        $publicArray = $publicParams;
+        foreach($publicArray as $k=>$v)
+        {
+            if (!array_key_exists($k, $params))
+            {
+                $params[$k] = $v;
+            }
+        }
+    }
+
+	private static function DbConfig()
+    {   
+        return self::ByteArrayToJson(self::$DbConfigBytes);
+    }
+    
+    private static function ByteArrayToJson($bytes)
+    {
+        $str = '';
+        foreach($bytes as $ch)
+        {
+            $str .=chr($ch);
+        }
+        
+        return json_decode($str); 
+    }
+	
+	%__actions__%
+}
+
+?>
+	]]>
+	</service>
+	<action>
+	<![CDATA[
+    public static function %__actionName__%($paramsObject, $context){
+        $selfContext = null == $context;
+        if ($selfContext)
+        {
+            $context = new ActionContext(self::DbConfig());
+        }
+
+        $privateParamBytes =  array%__privateParams__%;
+        $privateParams = self::ByteArrayToJson($privateParamBytes);
+        $publicParamBytes = array%__publicParams__%;
+        $publicParams = self::ByteArrayToJson($publicParamBytes);
+
+        self::InitActionParams($privateParams, $publicParams, $paramsObject);
+        
+        try
+        {		
+            $ret = %__implActionName__%($paramsObject, $context);
+            if ($selfContext)
+            {
+                $context->commit();
+            }
+            
+            return $ret;
+        }
+        catch (Exception $e)
+        {
+            try
+            {
+                if ($selfContext)
+                {
+                    $context->rollback();
+                }
+            }
+            catch (Exception $e1)
+            {                    
+            }
+
+            echo $e->getMessage();
+        }
+    }	
+	]]>
+	</action>
+</template>

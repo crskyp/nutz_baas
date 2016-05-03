@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<service>
+	<![CDATA[
+namespace %__packageName__%	
+{	
+	using System;
+    using com.justep.baas.action;
+    using Newtonsoft.Json.Linq;
+	using JSONObject = Newtonsoft.Json.Linq.JObject;
+	
+	public class %__className__% {
+		public static IUserActionUtil ActionUtil { set; private get; }
+
+		private static readonly byte[] DbConfigBytes = %__DBConfig__%;
+		private static JSONObject DbConfig
+	    {
+	        get
+	        {
+	            return JSONObject.Parse(ActionUtil.NewString(DbConfigBytes, "UTF-8"));
+            }
+	    }
+	    
+	    private static void InitActionParams(JObject privateParams, JObject publicParams, JObject @params)
+        {
+            foreach (var item in privateParams)
+            {
+                if (@params[item.Key] == null)
+                {
+                    @params.Add(item.Key, item.Value);
+                }
+            }
+            foreach (var item in publicParams)
+            {
+                if (@params[item.Key] == null)
+                {
+                    @params.Add(item.Key, item.Value);
+                }
+            }
+        }
+		
+		%__actions__%
+	}
+}
+	]]>
+	</service>
+	<action>
+	<![CDATA[
+		public static JSONObject %__actionName__%(JSONObject paramsObject, ActionContext context){
+			bool selfContext = null == context;
+			if (selfContext)
+		    {
+		        context = new ActionContext(DbConfig);
+		    }
+		    
+			byte[] privateParamBytes =  %__privateParams__%;
+			JSONObject privateParams = JSONObject.Parse(ActionUtil.NewString(privateParamBytes, "UTF-8"));
+			byte[] publicParamBytes = %__publicParams__%;
+			JSONObject publicParams = JSONObject.Parse(ActionUtil.NewString(publicParamBytes, "UTF-8"));
+			
+			InitActionParams(privateParams, publicParams, paramsObject);
+				
+			try
+            {		
+				var ret =  %__implActionName__%(paramsObject, context);
+			    if (selfContext)
+                {
+                    context.commit();
+                }
+                return ret;
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    if (selfContext)
+                    {
+                        context.rollback();
+                    }
+                }
+                catch (Exception)
+                {                    
+                }
+                
+                throw new SystemException(e.Message, e);
+            }
+		}
+	]]>
+	</action>
+</template>

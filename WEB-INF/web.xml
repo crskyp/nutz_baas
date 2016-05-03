@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	<display-name>X5 Baas Server</display-name>
+
+	<listener>
+		<listener-class>com.jsptpd.baas.listener.BaasListener</listener-class>
+	</listener>
+
+	<filter>
+		<filter-name>nutz</filter-name>
+		<filter-class>org.nutz.mvc.NutFilter</filter-class>
+		<init-param>
+			<param-name>modules</param-name>
+			<param-value>com.jsptpd.MainModule</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>nutz</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>WeX5_Baas_Servlet</servlet-name>
+		<servlet-class>com.justep.baas.servlet.BaasServlet</servlet-class>
+		<!-- 跨域访问设置 <init-param> <param-name>Access-Control-Allow-Origin</param-name> 
+			<param-value>*</param-value> </init-param> -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>WeX5_Baas_Servlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>TimeSettingServlet</servlet-name>
+		<servlet-class>com.jsptpd.weixin.servlet.TimeSettingServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>TimeSettingServlet</servlet-name>
+		<url-pattern>/TimeSettingServlet</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>CheckOutTimeSettingServlet</servlet-name>
+		<servlet-class>com.jsptpd.weixin.servlet.CheckOutTimeSettingServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>CheckOutTimeSettingServlet</servlet-name>
+		<url-pattern>/CheckOutTimeSettingServlet</url-pattern>
+	</servlet-mapping>
+
+
+
+</web-app>
